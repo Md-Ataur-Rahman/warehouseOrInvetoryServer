@@ -28,6 +28,12 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    app.get("/myitems", async (req, res) => {
+      const query = {};
+      const cursor = newItemCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
     app.get("/item/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -47,12 +53,19 @@ async function run() {
       const result = await inventoryItemCollection.deleteOne(query);
       res.send(result);
     });
+    app.delete("/myitemsdelete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await newItemCollection.deleteOne(query);
+      res.send(result);
+    });
     app.put("/item/:id", async (req, res) => {
       const id = req.params.id;
-      const body = req.body;
+      const body = await req.body;
       const quantity = await body.quantity;
-      console.log(quantity);
+
       const filter = { _id: ObjectId(id) };
+      console.log(quantity);
       const updateQuantity = {
         $set: {
           quantity,
