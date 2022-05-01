@@ -20,6 +20,7 @@ async function run() {
     const inventoryItemCollection = client
       .db("InventoryItem")
       .collection("Items");
+    const newItemCollection = client.db("InventoryItem").collection("NewItems");
 
     app.get("/products", async (req, res) => {
       const query = {};
@@ -31,6 +32,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await inventoryItemCollection.findOne(query);
+      res.send(result);
+    });
+    app.post("/additem", async (req, res) => {
+      const body = req.body;
+      const item = await body.item;
+      console.log(item);
+      const result = await newItemCollection.insertOne(item);
       res.send(result);
     });
     app.delete("/delete/:id", async (req, res) => {
