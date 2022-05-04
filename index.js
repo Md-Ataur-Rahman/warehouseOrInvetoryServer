@@ -26,7 +26,6 @@ async function run() {
     app.post("/login", (req, res) => {
       const email = req.body;
       const token = jwt.sign(email, process.env.SECRET_ACCESS_TOKEN);
-      console.log(token);
       res.send({ token });
     });
 
@@ -37,11 +36,17 @@ async function run() {
       res.send(result);
     });
     app.get("/myitems", async (req, res) => {
-      const query = req.query;
-      console.log(query);
-      const cursor = newItemCollection.find(query);
-      const result = await cursor.toArray();
-      res.send(result);
+      const tokenInfo = req.headers.authorization;
+      const [email, accessToken] = tokenInfo.split(" ");
+      const decoded = verifyToken(accessToken);
+
+      if (email === decoded.email) {
+        const cursor = await newItemCollection.find({ email: email });
+        const result = await cursor.toArray();
+        res.send(result);
+      } else {
+        res.send({ success: "UnAuthoraized Access" });
+      }
     });
     app.get("/item/:id", async (req, res) => {
       const id = req.params.id;
@@ -52,7 +57,6 @@ async function run() {
     app.post("/additem", async (req, res) => {
       const body = req.body;
       const item = await body.item;
-      console.log(item);
       const result = await newItemCollection.insertOne(item);
       res.send(result);
     });
@@ -74,7 +78,6 @@ async function run() {
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
 
-      console.log(body.quantity);
       const updateQuantity = {
         $set: {
           quantity: body.quantity,
@@ -99,3 +102,16 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+function verifyToken(token) {
+  let email;
+  jwt.verify(token, process.env.SECRET_ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      email = "Error from email";
+    }
+    if (decoded) {
+      email = decoded;
+    }
+  });
+  return email;
+}
