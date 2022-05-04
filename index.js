@@ -29,7 +29,8 @@ async function run() {
       res.send(result);
     });
     app.get("/myitems", async (req, res) => {
-      const query = {};
+      const query = req.query;
+      console.log(query);
       const cursor = newItemCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
