@@ -48,7 +48,7 @@ async function run() {
         res.send({ success: "UnAuthoraized Access" });
       }
     });
-    app.get("/item/:id", async (req, res) => {
+    app.get("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await inventoryItemCollection.findOne(query);
@@ -72,7 +72,7 @@ async function run() {
       const result = await newItemCollection.deleteOne(query);
       res.send(result);
     });
-    app.put("/item/:id", async (req, res) => {
+    app.put("/inventory/:id", async (req, res) => {
       const id = req.params.id;
       const body = await req.body;
       const filter = { _id: ObjectId(id) };
